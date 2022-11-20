@@ -1,0 +1,224 @@
+1)FIFO
+
+import java.util.Scanner;
+
+class fifo
+{
+    public static void main(String[] args)
+    {
+        Scanner sc = new Scanner(System.in);
+        int len;
+        System.out.println("Enter length of reference string: ");
+        len = sc.nextInt();
+        int[] incomingStream = new int[len];
+        System.out.println("Enter reference string :");
+        for(int i=0;i<len;i++){
+            incomingStream[i] = sc.nextInt();
+        }
+        int pageFaults = 0;
+        System.out.println("Enter no. of frames: ");
+        int frames = sc.nextInt();
+        int m, n, s, pages;
+
+        pages = incomingStream.length;
+
+        System.out.println("Incoming \t Frame 1 \t Frame 2 \t Frame 3");
+        int[] temp = new int[frames];
+        for(m = 0; m < frames; m++)
+        {
+            temp[m] = -1;
+        }
+
+        for(m = 0; m < pages; m++)
+        {
+            s = 0;
+
+            for(n = 0; n < frames; n++)
+            {
+                if(incomingStream[m] == temp[n])
+                {
+                    s++;
+                    pageFaults--;
+                }
+            }
+            pageFaults++;
+
+            if((pageFaults <= frames) && (s == 0))
+            {
+                temp[m] = incomingStream[m];
+            }
+            else if(s == 0)
+            {
+                temp[(pageFaults - 1) % frames] = incomingStream[m];
+            }
+
+            System.out.println();
+            System.out.print(incomingStream[m] + "\t\t\t");
+            for(n = 0; n < frames; n++)
+            {
+                if(temp[n] != -1)
+                    System.out.print(temp[n] + "\t\t\t");
+                else
+                    System.out.print(" - \t\t\t");
+            }
+        }
+
+        System.out.println("\nTotal Page Faults:\t" + pageFaults);
+        System.out.println("\nTotal Page Hits:\t" + (len-pageFaults));
+    }
+}
+
+
+
+2)LRU
+
+import java.io.*;
+import java.util.*;
+public class LRU {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int frames, pointer = 0, hit = 0, fault = 0, ref_len;
+        boolean isFull = false;
+        int[] buffer;
+        ArrayList<Integer> stack = new ArrayList<Integer>();
+        int[] reference;
+        int[][] mem_layout;
+        System.out.println("Please enter the number of Frames: ");
+        frames = Integer.parseInt(br.readLine());
+        System.out.println("Please enter the length of the Reference string: ");
+        ref_len = Integer.parseInt(br.readLine());
+        reference = new int[ref_len];
+        mem_layout = new int[ref_len][frames];
+        buffer = new int[frames];
+        for (int j = 0; j < frames; j++)
+            buffer[j] = -1;
+        System.out.println("Please enter the reference string: ");
+        for (int i = 0; i < ref_len; i++) {
+            reference[i] = Integer.parseInt(br.readLine());
+        }
+        System.out.println();
+        for (int i = 0; i < ref_len; i++) {
+            if (stack.contains(reference[i])) {
+                stack.remove(stack.indexOf(reference[i]));
+            }
+            stack.add(reference[i]);
+            int search = -1;
+            for (int j = 0; j < frames; j++) {
+                if (buffer[j] == reference[i]) {
+                    search = j;
+                    hit++;
+                    break;
+                }
+            }
+            if (search == -1) {
+                if (isFull) {
+                    int min_loc = ref_len;
+                    for (int j = 0; j < frames; j++) {
+                        if (stack.contains(buffer[j])) {
+                            int temp = stack.indexOf(buffer[j]);
+                            if (temp < min_loc) {
+                                min_loc = temp;
+                                pointer = j;
+                            }
+                        }
+                    }
+                }
+                buffer[pointer] = reference[i];
+                fault++;
+                pointer++;
+                if (pointer == frames) {
+                    pointer = 0;
+                    isFull = true;
+                }
+            }
+            for (int j = 0; j < frames; j++)
+                mem_layout[i][j] = buffer[j];
+        }
+        for (int i = 0; i < frames; i++) {
+            for (int j = 0; j < ref_len; j++)
+                System.out.printf("%3d ", mem_layout[j][i]);
+            System.out.println();
+        }
+        System.out.println("The number of Hits: " + hit);
+        System.out.println("Hit Ratio: " + (float) ((float) hit / ref_len));
+        System.out.println("The number of Faults: " + fault);
+    }
+}
+
+
+
+
+3)OPTIMAL
+
+import java.util.Scanner;
+
+class optimal {
+    static boolean search(int key, int[] fr)
+    {
+        for (int i = 0; i < fr.length; i++)
+            if (fr[i] == key)
+                return true;
+        return false;
+    }
+
+    static int predict(int[] pg, int[] fr, int pn,
+                       int index)
+    {
+        int res = -1, farthest = index;
+        for (int i = 0; i < fr.length; i++) {
+            int j;
+            for (j = index; j < pn; j++) {
+                if (fr[i] == pg[j]) {
+                    if (j > farthest) {
+                        farthest = j;
+                        res = i;
+                    }
+                    break;
+                }
+            }
+            if (j == pn)
+                return i;
+        }
+        return (res == -1) ? 0 : res;
+    }
+
+    static void optimalPage(int pg[], int pn, int fn)
+    {
+        int[] fr = new int[fn];
+        int hit = 0;
+        int index = 0;
+        for (int i = 0; i < pn; i++) {
+            if (search(pg[i], fr)) {
+                hit++;
+                continue;
+            }
+            if (index < fn)
+                fr[index++] = pg[i];
+            else {
+                int j = predict(pg, fr, pn, i + 1);
+                fr[j] = pg[i];
+            }
+        }
+        System.out.println("No. of faults = " + hit);
+        System.out.println("No. of misses = " + (pn - hit));
+    }
+
+
+    public static void main(String[] args)
+    {
+        Scanner sc = new Scanner(System.in);
+        int len;
+        System.out.println("Enter length of reference string: ");
+        len = sc.nextInt();
+        int[] pg = new int[len];
+        System.out.println("Enter reference string :");
+        for(int i=0;i<len;i++){
+            pg[i] = sc.nextInt();
+        }
+        int pn = pg.length;
+
+        System.out.println("Enter no. of frames: ");
+        int fn = sc.nextInt();
+        optimalPage(pg, pn, fn);
+    }
+}

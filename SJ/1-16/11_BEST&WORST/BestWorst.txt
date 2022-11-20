@@ -1,0 +1,101 @@
+import java.util.*;
+class best_fit{
+	best_fit(int memory_block[], int m, int process_size[],int n){
+		int allocation[] = new int[n];  //stores allocated blocks;
+		for (int i = 0; i < allocation.length; i++) // Initially no block is assigned to any process
+			allocation[i] = -1;
+		for (int i=0; i<n; i++){ //traversing through process
+			int bestIdx = -1;
+			for (int j=0; j<m; j++){     //travesering through memory_block
+				if (memory_block[j] >= process_size[i]){				
+					if (bestIdx == -1)
+						bestIdx = j;
+					else if (memory_block[bestIdx] > memory_block[j])
+						bestIdx = j;
+				}
+			}
+			// If we could find a block for current process
+			if (bestIdx != -1){
+				allocation[i] = bestIdx;    //Putting in allocated list;
+				memory_block[bestIdx] -= process_size[i];   //Updating changed size of memory block
+			}
+		}
+		System.out.println("Process No.\tProcess size\tBlock No.");
+        for(int i=0;i<n;i++){
+            if(allocation[i]!=-1)   //Process is allocated
+                System.out.println((i+1)+"\t\t"+process_size[i]+"\t\t"+(allocation[i]+1));
+            else
+                System.out.println((i+1)+"\t\t"+process_size[i]+"\t\tNot allocates");
+        }
+	}
+}
+class worst_fit{
+	worst_fit(int memory_block[], int m, int process_size[],int n){
+		int allocation[] = new int[n];  //stores allocated blocks;
+		for (int i = 0; i < allocation.length; i++) // Initially no block is assigned to any process
+			allocation[i] = -1;
+		for (int i=0; i<n; i++){     //traversing through process
+			int wstIdx = -1;
+			for (int j=0; j<m; j++){    //travesering through memory_block 
+				if (memory_block[j] >= process_size[i])
+				{
+					if (wstIdx == -1)
+						wstIdx = j;
+					else if (memory_block[wstIdx] < memory_block[j])
+						wstIdx = j;
+				}
+			}
+			if (wstIdx != -1){
+				allocation[i] = wstIdx;     //Putting in allocated list;
+				memory_block[wstIdx] -= process_size[i];    //Updating changed size of memory block
+			}
+		}
+		System.out.println("Process No.\tProcess size\tBlock No.");
+        for(int i=0;i<n;i++){
+            if(allocation[i]!=-1)   //Process is allocated
+                System.out.println((i+1)+"\t\t"+process_size[i]+"\t\t"+(allocation[i]+1));
+            else
+                System.out.println((i+1)+"\t\t"+process_size[i]+"\t\tNot allocates");
+        }
+	}
+}
+
+public class BestWorst
+{
+    public static void main(String[] args) {
+        int m,n,ch=0;
+        Scanner sc=new Scanner(System.in);
+        do{
+            System.out.println("--------Memory Allocation Program-------");
+            System.out.print("Enter number of memory blocks : ");
+            m=sc.nextInt();
+            int mem_block[]=new int[m];
+            for(int i=0;i<m;i++){
+                System.out.print("Enter size of "+(i+1)+" memory block : ");
+                mem_block[i]=sc.nextInt();
+            }
+            System.out.print("Enter number of process : ");
+            n=sc.nextInt();
+            int pro_size[]=new int[n];
+            for(int i=0;i<n;i++){
+                System.out.print("Enter size of "+(i+1)+" process : ");
+                pro_size[i]=sc.nextInt();
+            }
+            System.out.println("1.Best Fit\n2.Worst Fit\n3.Exit");
+            System.out.print("Enter choice : ");
+            ch=sc.nextInt();
+            switch (ch){
+                case 1:
+                    new best_fit(mem_block,m,pro_size,n);
+                    break;
+                case 2:
+                    new worst_fit(mem_block,m,pro_size,n);
+                    break;
+                case 3:
+                    break;
+                default:
+                    break;
+            }
+        }while(ch<4);
+    }
+}
