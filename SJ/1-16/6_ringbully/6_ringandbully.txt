@@ -1,0 +1,185 @@
+import java.util.Scanner;
+
+class Process {
+    public int id;
+    public boolean active;
+
+    public Process(int id) {
+        this.id = id;
+        active = true;
+    }
+}
+
+class Ring {
+    int noOfProcesses;
+    Process[] processes;
+    Scanner sc;
+
+    public Ring() {
+        sc = new Scanner(System.in);
+    }
+
+    public void initialiseRing() {
+        System.out.println("Enter no of processes");
+        noOfProcesses = sc.nextInt();
+        processes = new Process[noOfProcesses];
+        for (int i = 0; i < processes.length; i++) {
+            processes[i] = new Process(i);
+        }
+    }
+
+    public int getMax() {
+        int maxId = -99;
+        int maxIdIndex = 0;
+        for (int i = 0; i < processes.length; i++) {
+            if (processes[i].active && processes[i].id > maxId) {
+                maxId = processes[i].id;
+                maxIdIndex = i;
+            }
+        }
+        return maxIdIndex;
+    }
+
+    public void performElection() {
+        System.out.println("Process no " + processes[getMax()].id + " fails");
+        processes[getMax()].active = false;
+        System.out.println("Election Initiated by ");
+        int initiatorProcesss = sc.nextInt();
+        int prev = initiatorProcesss;
+        int next = prev + 1;
+
+        while (true) {
+            if (processes[next].active) {
+                System.out.println("Process " + processes[prev].id + " pass Election (" + processes[prev].id + ") to "
+                        + processes[next].id);
+                prev = next;
+            }
+
+            next = (next + 1) % noOfProcesses;
+            if (next == initiatorProcesss) {
+                break;
+            }
+        }
+
+        System.out.println("Process " + processes[getMax()].id + " becomes coordinator");
+        int coordinator = processes[getMax()].id;
+        prev = coordinator;
+        next = (prev + 1) % noOfProcesses;
+
+        while (true) {
+            if (processes[next].active) {
+                System.out.println("Process " + processes[prev].id + " pass Coordinator(" + coordinator
+                        + ") message to process " + processes[next].id);
+                prev = next;
+            }
+            next = (next + 1) % noOfProcesses;
+            if (next == coordinator) {
+                System.out.println("End Of Election ");
+                break;
+            }
+        }
+    }
+}
+
+class Bully {
+    Scanner sc;
+    Process[] processes;
+    int n;
+
+    public Bully() {
+        sc = new Scanner(System.in);
+    }
+
+    public void ring() {
+        System.out.println("Enter total number of processes of Processes");
+        n = sc.nextInt();
+        processes = new Process[n];
+        for (int i = 0; i < n; i++) {
+            processes[i] = new Process(i);
+        }
+    }
+
+    public void performElection() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Process having id " + processes[getMaxValue()].id + " fails");
+        processes[getMaxValue()].active = false;
+
+        int idOfInitiator = 0;
+        boolean active = true;
+        while (active) {
+            boolean higherProcesses = false;
+            for (int i = idOfInitiator + 1; i < n; i++) {
+                if (processes[i].active == true) {
+                    System.out.println("Process " + idOfInitiator + " Passes Election(" + idOfInitiator
+                            + ") message to process " + i);
+                    higherProcesses = true;
+                }
+            }
+            if (higherProcesses) {
+                for (int i = idOfInitiator + 1; i < n; i++) {
+                    if (processes[i].active == true) {
+                        System.out.println("Process " + i + " Passes Ok(" + i + ") message to process" + idOfInitiator);
+                    }
+                }
+                idOfInitiator++;
+            } else {
+                int coord = processes[getMaxValue()].id;
+                System.out.println("\nFinally Process " + coord + " Becomes Coordinator");
+                for (int i = coord - 1; i >= 0; i--) {
+                    if (processes[i].active == true) {
+                        System.out.println(
+                                "Process " + coord + " Passes Coordinator(" + coord + ") message to process " + i);
+                    }
+                }
+                System.out.println("End of Election");
+                active = false;
+                break;
+            }
+        }
+    }
+
+    public int getMaxValue() {
+        int mxId = -99;
+        int mxIdIndex = 0;
+        for (int i = 0; i < processes.length; i++) {
+            if (processes[i].active == true && processes[i].id > mxId) {
+                mxId = processes[i].id;
+                mxIdIndex = i;
+            }
+        }
+        return mxIdIndex;
+    }
+}
+
+class Main {
+    public static void main(String args[]) {
+        Ring obj1 = new Ring();
+        Bully obj2 = new Bully();
+
+        Scanner obj3 = new Scanner(System.in);
+
+        System.out.println("1.Ring");
+        System.out.println("2.Bully");
+        System.out.println("Enter choice");
+        int choice = obj3.nextInt();
+
+        switch (choice) {
+            case 1:
+                obj1.initialiseRing();
+                obj1.getMax();
+                obj1.performElection();
+                break;
+            case 2:
+                obj2.ring();
+                obj2.performElection();
+                obj2.getMaxValue();
+                break;
+            default:
+                System.out.println("Invalid");
+        }
+    }
+}

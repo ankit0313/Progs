@@ -1,0 +1,100 @@
+package macropass;
+
+import java.util.*;
+import java.io.*;
+
+public class macropro {
+    static String mnt[][]=new String[5][3];
+    static String ala[][]=new String[10][2];
+    static String mdt[][]=new String[20][1];
+    static int mdtc=0,mntc=0,alac=0;
+    public static void main(String[] args) {
+        pass1();
+        System.out.println("***********PASS 1***************");
+        System.out.println("MACRO NAME TABLE");
+        display(mnt,mntc,3);
+        System.out.println("ARGUMENT LIST ARRAY TABLE");
+        display(ala,alac,2);
+        System.out.println("MACRO NAME TABLE");
+        display(mdt,mdtc,1);
+
+    }
+    static void pass1(){
+        int index=0,i;
+        String s,prev="",substring;
+        try{
+            BufferedReader ip= new BufferedReader(new FileReader("C:/Users/athar/eclipse-workspace/macropass/src/macropass/input.txt"));
+            File op = new File("C:/Users/athar/eclipse-workspace/macropass/src/macropass/output.txt");
+            if(!op.exists()){
+                op.createNewFile();
+                BufferedWriter output=new BufferedWriter(new FileWriter(op.getAbsoluteFile()));
+            
+            while((s=ip.readLine())!=null){
+                if(s.equalsIgnoreCase("MACRO")){
+                    prev=s;
+                    for(;!(s=ip.readLine()).equalsIgnoreCase("MEND");mdtc++,prev=s){
+                        if(prev.equalsIgnoreCase("MACRO")){
+                            StringTokenizer st=new StringTokenizer(s);      //for creating tokens on the string
+                            String []str = new String[st.countTokens()];
+                            for ( i = 0; i < str.length; i++) {
+                                str[i]=st.nextToken();
+                            }
+                            mnt[mntc][0]=(mntc+1)+"";   //mnt formation
+                            mnt[mntc][1]=str[0];
+                            mnt[mntc++][2]=(++mdtc)+"";
+
+                            st=new StringTokenizer(str[1],",");
+                            String string[]=new String[st.countTokens()];
+                            for (i = 0; i < string.length; i++) {
+                                string[i]=st.nextToken();
+                                ala[alac][0]=alac+"";
+                                index=string[i].indexOf("=");
+                                if(index!=-1){
+                                    ala[alac++][1]=string[i].substring(0,index);
+                                }
+                                else{
+                                    ala[alac++][1]=string[i];
+                                }
+                            }
+                        }
+                        else{
+                            index=s.indexOf("$");
+                            substring=s.substring(index);
+                            for(i=0; i<alac; i++){
+                                if(ala[i][1].equals(substring)){
+                                    s=s.replaceAll(substring,"#"+ala[i][0]);
+                                }
+                            }
+
+                        }
+                        mdt[mdtc-1][0]=s;
+                    }
+                    mdt[mdtc-1][0]=s;
+                }
+                else{
+                    output.write(s);
+                    output.newLine();
+                }
+            }output.close();
+            
+        }
+
+        }catch(FileNotFoundException e){
+            System.out.println("Unavailabe file");
+        }
+        catch(IOException e){
+            e.printStackTrace();;
+        }
+    }
+    static void display(String a[][],int n,int m){
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                System.out.print(a[i][j]+" ");
+                
+            }
+            System.out.println();
+            
+        }
+    }
+    
+}

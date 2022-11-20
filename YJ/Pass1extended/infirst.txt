@@ -1,0 +1,19 @@
+START	100
+	MOVER  	AX,05
+	MOVER  	BX,10
+UP 	ADD  	AX ,BX
+	MOVEM  	A,B
+	MUL  	AX  A
+	ORIGIN  	UP 
+	LTORG
+		='5'
+	LTORG
+		='8'
+		='8'
+A	DS  	02
+B	DC 	10
+C	DS  	09
+NEXT  	EQU  	UP
+		='7'
+		='8'
+	END
